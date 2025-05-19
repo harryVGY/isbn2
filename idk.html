@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>EAN-sök på Bokbörsen</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <style>
+    #scanner-container {
+      width: 100%;
+      max-width: 400px;
+      margin: auto;
+    }
+    video {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Skanna en bokkod</h1>
+  <div id="scanner-container"></div>
+  <p id="result"></p>
+
+  <script>
+    Quagga.init({
+      inputStream: {
+        name: "Live",
+        type: "LiveStream",
+        target: document.querySelector('#scanner-container'),
+        constraints: {
+          facingMode: "environment"
+        }
+      },
+      decoder: {
+        readers: ["ean_reader"]
+      }
+    }, function(err) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      Quagga.start();
+    });
+
+    Quagga.onDetected(function(data) {
+      const code = data.codeResult.code;
+      document.getElementById("result").innerText = "EAN-kod: " + code;
+      Quagga.stop();
+
+      // Omdirigera till Bokbörsen med EAN-koden
+      const searchUrl = `https://www.bokborsen.se/?query=${code}`;
+      window.open(searchUrl, "_blank");
+    });
+  </script>
+</body>
+</html>
